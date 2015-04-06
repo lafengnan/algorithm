@@ -17,7 +17,9 @@ class Sorter:
 
     algorithms = ('bubble', 'bubble_recursion',
                   'insert', 'insert_recursion',
-                  'merge_recursion')
+                  'merge_recursion',
+                  'heap_sort',
+                 )
 
     def __init__(self, *args, **kwargs):
         self.count = 0
@@ -108,6 +110,57 @@ class Sorter:
             self.merge_recursion(data, begin=m+1, rear=r)
             _merge(data, b, m, r)
             self.cycle += 1
+
+    def heap_sort(self, data, *args, **kwargs):
+
+        def _left(idx):
+            return idx << 1
+
+        def _right(idx):
+            return (idx << 1) + 1
+        
+        def _max_heapify(data, idx, heap_size):
+            """
+            Keep max heapify for the idxth node:
+                     idx(p)
+                     /   \
+                2*idx(l) 2*idx+1(r)
+                l < p, r < p
+            """
+            l = _left(idx)
+            r = _right(idx)
+
+            if l < heap_size and data[l] > data[idx]:
+                max_idx = l
+            else:
+                max_idx = idx
+            if r < heap_size and data[r] > data[max_idx]:
+                max_idx = r
+
+            if max_idx != idx:
+                data[idx], data[max_idx] = data[max_idx], data[idx]
+                _max_heapify(data, max_idx, heap_size)
+        
+        def _build_max_heap(data):
+            for i in xrange(len(data)/2, -1, -1):
+                try:
+                    _max_heapify(data, i, len(data))
+                except Exception as e:
+                    print e
+                    raise Exception("build heap failed!")
+
+        try:
+            _build_max_heap(data)
+        except Exception:
+            raise
+        _heap_size = len(data)
+        for i in xrange(_heap_size - 1, 0, -1):
+            data[0], data[i] = data[i], data[0]
+            _heap_size -= 1
+            try:
+                _max_heapify(data, 0, _heap_size)
+            except Exception:
+                raise
 
     @timeit
     def run(self, sort, data, *args, **kwargs):
