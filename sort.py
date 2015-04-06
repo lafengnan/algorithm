@@ -16,7 +16,8 @@ def timeit(f, *args, **kwargs):
 class Sorter:
 
     algorithms = ('bubble', 'bubble_recursion',
-                  'insert', 'insert_recursion')
+                  'insert', 'insert_recursion',
+                  'merge_recursion')
 
     def __init__(self, *args, **kwargs):
         self.count = 0
@@ -30,6 +31,7 @@ class Sorter:
                     _a[j], _a[j+1] = _a[j+1], _a[j]
                     self.count += 1
             self.cycle += 1
+
     def bubble_recursion(self, data, *args, **kwargs):
         def one_cycle(data, len):
             for i in xrange(0, len - 1):
@@ -77,6 +79,36 @@ class Sorter:
             one_cycle(_a, idx)
             self.insert_recursion(_a, idx=idx+1)
 
+    def merge_recursion(self, data, *args, **kwargs):
+        def _merge(data, begin, mid, rear):
+
+            L = data[begin:mid + 1]
+            R = data[mid + 1:rear + 1]
+
+            # Append a sentinel to the end
+            L.append(0x7fffffff)
+            R.append(0x7fffffff)
+
+            i = j = 0
+            self.count += 1
+            for k in xrange(begin, rear + 1):
+                if L[i] <= R[j]:
+                    data[k] = L[i]
+                    i += 1
+                else:
+                    data[k] = R[j]
+                    j += 1
+
+
+        b = kwargs['begin']
+        r = kwargs['rear']
+        m = (b + r)/2
+        if b < r:
+            self.merge_recursion(data, begin=b, rear=m)
+            self.merge_recursion(data, begin=m+1, rear=r)
+            _merge(data, b, m, r)
+            self.cycle += 1
+
     @timeit
     def run(self, sort, data, *args, **kwargs):
         self.data = data
@@ -106,6 +138,8 @@ def main():
         x.run('bubble_recursion', a, len=len(a))
     elif algorithm == 'insert_recursion':
         x.run('insert_recursion', a, idx=1)
+    elif algorithm == 'merge_recursion':
+        x.run('merge_recursion', a, begin=0, rear=len(a)-1)
     else:
         x.run(algorithm, a)
     x.info()
