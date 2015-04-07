@@ -19,6 +19,7 @@ class Sorter:
                   'insert', 'insert_recursion',
                   'merge_recursion',
                   'heap_sort',
+                  'qsort',
                  )
 
     def __init__(self, *args, **kwargs):
@@ -161,6 +162,32 @@ class Sorter:
                 _max_heapify(data, 0, _heap_size)
             except Exception:
                 raise
+    
+    def qsort(self, data, *args, **kwargs):
+        """quick sort"""
+        def _partition(data, low, high):
+            pivot = data[low]
+            while low < high:
+                while low < high and data[high] >= pivot:
+                    high -= 1
+                    self.count += 1
+                #data[low], data[high] = data[high], data[low]
+                data[low] = data[high]
+                while low < high and data[low] <= pivot:
+                    low += 1
+                    self.count += 1
+                #data[low], data[high] = data[high], data[low]
+                data[high] = data[low]
+            data[low] = pivot
+            self.cycle += 1
+            return low
+
+        L = kwargs['low']
+        H = kwargs['high']
+        if L < H:
+            pivot_idx = _partition(data, L, H)
+            self.qsort(data, low=L, high=pivot_idx-1)
+            self.qsort(data, low=pivot_idx+1, high=H)
 
     @timeit
     def run(self, sort, data, *args, **kwargs):
@@ -193,6 +220,8 @@ def main():
         x.run('insert_recursion', a, idx=1)
     elif algorithm == 'merge_recursion':
         x.run('merge_recursion', a, begin=0, rear=len(a)-1)
+    elif algorithm == 'qsort':
+        x.run('qsort', a, low=0, high=len(a)-1)
     else:
         x.run(algorithm, a)
     x.info()
