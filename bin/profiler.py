@@ -7,11 +7,13 @@ import resource
 import time
 import gc
 import csv
+import re
 from functools import wraps
 from collections import OrderedDict
 from memory_profiler import profile
 from wand.image import Image
 
+target_dir = './photos'
 
 def timeit(f, *args, **kwargs):
     @wraps(f)
@@ -23,7 +25,7 @@ def timeit(f, *args, **kwargs):
         #    print("{0} seconds...".format(e-b))
     return deco
 
-@timeit
+#@timeit
 @profile
 def profile_wand(*args, **kwargs):
     path = kwargs['path']
@@ -85,8 +87,94 @@ class Profiler(object):
         gc.collect()
         print("garbage stats:{}".format(gc.garbage))
 
+class TopLogAnalyzer(object):
+    """
+    Analyze the top command output for long time monitor
+    Will create a csv report for graphic display
+    @log: the top command output by using top -p [pid1, pid2, ...] -b > top.log
+    @pids_num: the number of processes to monitor
+    @user: the user of the pids
 
-def main():
+    """
+    csv_header = ('timestamp', 'load_1', 'load_5', 'load_10',
+                  'pid', 'virt', 'res', 'shr', '%cpu', '%mem'
+                  )
+    def __init__(self, log, pids, user, *args, **kwargs):
+        super(TopLogAnalyzer, self).__init__()
+        self._log = log
+        self._pids = pids
+        self._user = user
+        self._args = args
+        self._kwargs = kwargs
+        self._csv = log.split('.')[0] + ".csv" if log else "top.csv"
+        self._csv_writer = self._build_csv_writer()
+
+    def _build_csv_writer(self):
+        def _build_header():
+            try:
+                with open(self._csv, 'wb') as f:
+                    w = csv.DictWriter(f, self.csv_header)
+                    w.writeheader()
+            except IOError:
+                raise
+        try:
+            _build_header()
+        except:
+            raise
+        try:
+            fd = open(self._csv, 'a')
+            w = csv.DictWriter(fd, self.csv_header)
+        except IOError:
+            raise
+        return w
+
+    def _collect_data(self):
+
+        def _collect_top_line(line):
+            words = line.rstrip('\n').split(' ')
+            # timestamp, load_1, load_5, load_10
+            headline_data = [words[2], words[-3].rstrip(','), words[-2].rstrip(','), words[-1]]
+            return headline_data
+
+        def _collect_stats(line):
+            words = [x for x in line.rstrip('\n').rstrip(' ').lstrip(' ').split(' ') if x != '']
+            # pid, virt, res, shr, %cpu, %mem
+            pid = words[0]
+            virt = words[4].rstrip('m')
+            res = words[5].rstrip('m')
+            shr = words[6]
+            cpu = words[8]
+            mem = words[9]
+            return [pid, virt, res, shr, cpu, mem]
+
+        _loads_pattern = re.compile("load")
+        _stats_pattern = re.compile(self._user)
+
+        try:
+            with open(self._log, 'r') as f:
+                _stats = list()
+                for l in f:
+                    if  _loads_pattern.search(l):
+                        _stats = [] # reset _stats for new interval
+                        _stats +=  _collect_top_line(l)
+                    elif _stats_pattern.search(l):
+                        pid_stat = _collect_stats(l)
+                        _stats += pid_stat
+                        data = dict(zip(self.csv_header, _stats))
+                        self._csv_writer.writerow(data)
+                        # Drain out pid_stat for next pid
+                        for x in pid_stat:
+                            _stats.remove(x)
+        except IOError:
+            raise
+
+    def analyze(self, *args, **kwargs):
+        print("Starts building csv report...")
+        self._collect_data()
+        print("Ends building csv report")
+
+
+def profiler():
     #dir = sys.argv[3] or './photos'
     #loops = int(sys.argv[4])
     dir = './1000_pics'
@@ -102,6 +190,18 @@ def main():
             p.info()
     print("Test Done! Building Report......")
 
+def analyze():
+    # analysis cmd[analyze | profiler] options
+    log = sys.argv[2]
+    pids_num = int(sys.argv[3])
+    user = sys.argv[-1]
+    analyzer = TopLogAnalyzer(log, pids_num, user)
+    analyzer.analyze()
+
 if __name__ == "__main__":
-    sys.exit(main())
+    if sys.argv[1] == 'analyze':
+        run = analyze
+    elif sys.argv[1] == 'profiler':
+        run = profiler
+    sys.exit(run())
 
