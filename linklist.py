@@ -7,33 +7,59 @@ class Node(object):
     @data: the data of one node
     """
     def __init__(self, data):
-        self.data = data
-        self.idx = 0
+        super(Node, self).__init__()
+        self._idx = 0
+        self._data = data
         self.next = None
+
+    @property
+    def data(self):
+        return self._data
+
+    @data.setter
+    def data(self, value):
+        self._data = value
+
+    @property
+    def idx(self):
+        return self._idx
+
+    @idx.setter
+    def idx(self, value):
+        self._idx = value
+
+    def __str__(self):
+        return "\tindex:{}, data: {}".format(self._idx, self._data)
 
 class SingleLinkList(object):
     """
-    The single link list class represents a single link list. In the
-    list each node is an instance of Node class.
+    The SingleLinkList class represents a single link list. In the
+    list each node is an instance of Node class. The link list is shown
+    as below example (3 data nodes).
+    @kwargs: opts for link list creation. TBD
 
       List
-    --------
+    .------.
     | len  |
-    --------         Node 0
-    | head | ---> -------------
-    --------      | data, idx |
-    | rear | --.  ------------           Node 1
-    --------   |  |   next    | ---> -------------
-               |  ------------       | data, idx |
-               |                     -------------         Node 2
-               |                     |   next    | ---> -------------
-               |                     ------------       | data, idx |
-               |                                        -------------
-               |--------------------------------------> |   next    | ---> None
-                                                        -------------
+    .------.
+    | opts |
+    .------.       Node 0           Node 1           Node 2
+    | head | ---->.------.   .---->.------.   .---->.------.
+    .------.      | idx  |   |     | idx  |   |     | idx  |
+    | rear | --.  .------.   |     .------.   |     .------.
+    *------*   |  | data |   |     | data |   |     | data |
+               |  .------.   |     .------.   |     .------.
+               |  | next |---*     | next |---*     | next |---> None
+               |  *------*         *------*         *------*
+               |                                       ^ 
+               |                                       |
+               *---------------------------------------*
+
     """
-    def __init__(self):
+    def __init__(self, **kwargs):
+        super(SingleLinkList, self).__init__()
         self.len = 0
+        self.opts = kwargs
         self.head = None
         self.rear = None
 
@@ -167,7 +193,7 @@ class SingleLinkList(object):
         p = self.head
         print("\nTraveling list...")
         while p:
-            print "\t{}: {}".format(p.idx, p.data)
+            print p
             p = p.next
 
     def info(self):
