@@ -107,27 +107,33 @@ class SingleLinkList(object):
             raise IndexError("idx:{} is out of range".format(idx))
 
         p = q = self.head
-        while idx:
-            q = p
-            p = p.next
-            idx -= 1
-        # 1. The idxth node is rear node
-        if not p.next:
-            # 1.1 Only one node
-            if p == q:
-                self.head = self.rear = None
-            else:
-                self.rear = q
-                q.next = None
-        # 2. The idxth node is not rear node
-        else:
-            q.next = p.next
+
+        # Delete first node
+        if idx == 0:
+            self.head = p.next
             p.next = None
-            tmp = q.next
-            # Decrease the index value for the rest nodes
-            while tmp:
-                tmp.idx -= 1
-                tmp = tmp.next
+        else:
+            while idx:
+                q = p
+                p = p.next
+                idx -= 1
+            # 1. The idxth node is rear node
+            if not p.next:
+                # 1.1 Only one node
+                if p == q:
+                    self.head = self.rear = None
+                else:
+                    self.rear = q
+                    q.next = None
+            # 2. The idxth node is not rear node
+            else:
+                q.next = p.next
+                p.next = None
+                tmp = q.next
+                # Decrease the index value for the rest nodes
+                while tmp:
+                    tmp.idx -= 1
+                    tmp = tmp.next
         del p
         self.len -= 1
 
