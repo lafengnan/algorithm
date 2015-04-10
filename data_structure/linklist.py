@@ -51,7 +51,7 @@ class SingleLinkList(object):
                |  .------.   |     .------.   |     .------.
                |  | next |---*     | next |---*     | next |---> None
                |  *------*         *------*         *------*
-               |                                       ^ 
+               |                                       ^
                |                                       |
                *---------------------------------------*
 
@@ -197,29 +197,9 @@ class SingleLinkList(object):
 
     def travel_list(self):
         p = self.head
-        print("\nTraveling list...")
         while p:
             print p
             p = p.next
 
     def info(self):
         return self.len
-
-def main():
-    link_list = SingleLinkList()
-    data = ['a', 'b', 'c', 1, 2, 4, '0', 'anan', 'shanghai', 'rain']
-    for i in xrange(len(data)):
-        node = Node(data[i])
-        link_list.insert_node_rear(node)
-        #link_list.insert_node_head(node)
-    print("list length: {}".format(link_list.info()))
-
-    link_list.travel_list()
-    link_list.reverse_list()
-    link_list.travel_list()
-    mid = link_list.seek_mid()
-    print "middle node index {}, data: {}".format(mid.idx, mid.data)
-    #link_list.remove_node(mid.idx)
-
-if __name__ == '__main__':
-    main()

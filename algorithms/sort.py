@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 # coding=utf-8
 
-import sys
 from time import time
 
 
@@ -119,7 +118,7 @@ class Sorter:
 
         def _right(idx):
             return (idx << 1) + 1
-        
+
         def _max_heapify(data, idx, heap_size):
             """
             Keep max heapify for the idxth node:
@@ -141,7 +140,7 @@ class Sorter:
             if max_idx != idx:
                 data[idx], data[max_idx] = data[max_idx], data[idx]
                 _max_heapify(data, max_idx, heap_size)
-        
+
         def _build_max_heap(data):
             for i in xrange(len(data)/2, -1, -1):
                 try:
@@ -162,7 +161,7 @@ class Sorter:
                 _max_heapify(data, 0, _heap_size)
             except Exception:
                 raise
-    
+
     def qsort(self, data, *args, **kwargs):
         """quick sort"""
         def _partition(data, low, high):
@@ -200,32 +199,7 @@ class Sorter:
             print("sorted data:{}".format(data))
         except Exception as e:
             print e
-    
+
     def info(self):
         print("Total {} elements to sort".format(len(self.data)))
         print("Running {} cycle, {} times swap".format(self.cycle, self.count))
-
-def main():
-    x = Sorter()
-    algorithm = sys.argv[1]
-    a = [6, 3, 2, 1, -1, 5, 6, 7, -20, 10, 9, 8, 3]
-
-    if algorithm not in x.algorithms:
-        print "No {} implementation!".format(algorithm)
-        sys.exit(1)
-
-    if algorithm == 'bubble_recursion':
-        x.run('bubble_recursion', a, len=len(a))
-    elif algorithm == 'insert_recursion':
-        x.run('insert_recursion', a, idx=1)
-    elif algorithm == 'merge_recursion':
-        x.run('merge_recursion', a, begin=0, rear=len(a)-1)
-    elif algorithm == 'qsort':
-        x.run('qsort', a, low=0, high=len(a)-1)
-    else:
-        x.run(algorithm, a)
-    x.info()
-
-if __name__ == '__main__':
-    sys.exit(main())
-
