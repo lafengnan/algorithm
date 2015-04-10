@@ -11,9 +11,20 @@ import re
 from functools import wraps
 from collections import OrderedDict
 from memory_profiler import profile
-from wand.image import Image
+import pandas as pd
+from optparse import OptionParser
+try:
+    from wand.image import Image
+except ImportError:
+    pass
 
-target_dir = './photos'
+
+Commands = ("analyze", "read", "profiling")
+
+USAGE = """
+%prog <command> [options]
+Commands:
+""" + '\n'.join(["%10s: " % x for x in Commands])
 
 def timeit(f, *args, **kwargs):
     @wraps(f)
@@ -42,20 +53,23 @@ class Profiler(object):
 
     def __init__(self, csv, dir, callback=profile_wand, *args, **kwargs):
         super(Profiler, self).__init__()
-        self._csv_file = csv
         self._test_dir = dir
+        self._report_dir = "reports"
         self._callback = callback
         self._args = args
         self._kwargs = kwargs
         self._mem_stats = OrderedDict()
         self._count = 0
         self.does_info = kwargs['info'] or False
-        self._w = self._build_csv_writer()
+        self._w = self._build_csv_writer(csv)
 
     def _mem_usage_kb(self):
         return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 
-    def _build_csv_header(self):
+    def _build_csv_header(self, csv_file):
+        if not os.path.exists(self._report_dir):
+            os.mkdir(self._report_dir)
+        self._csv_file = os.path.join(self._report_dir, csv_file)
         try:
             with open(self._csv_file, 'wb') as f:
                 w = csv.DictWriter(f, self.csv_header)
@@ -63,8 +77,8 @@ class Profiler(object):
         except IOError as e:
             raise
 
-    def _build_csv_writer(self):
-        self._build_csv_header()
+    def _build_csv_writer(self, csv_file):
+        self._build_csv_header(csv_file)
         try:
             self.csv_fd = open(self._csv_file, 'a')
             w = csv.DictWriter(self.csv_fd, self.csv_header)
@@ -97,20 +111,33 @@ class TopLogAnalyzer(object):
 
     """
     csv_header = ('timestamp', 'load_1', 'load_5', 'load_10',
-                  'pid', 'virt', 'res', 'shr', '%cpu', '%mem'
+                  'pid', 'virt', 'res', 'shr', 'cpu', 'mem'
                   )
-    def __init__(self, log, pids, user, *args, **kwargs):
+    def __init__(self, log=None, pids=0, user='ubuntu', *args, **kwargs):
         super(TopLogAnalyzer, self).__init__()
         self._log = log
+        self._report_dir = 'reports'
         self._pids = pids
         self._user = user
         self._args = args
         self._kwargs = kwargs
-        self._csv = log.split('.')[0] + ".csv" if log else "top.csv"
-        self._csv_writer = self._build_csv_writer()
+        self._csv = log.split('.')[0] + \
+            "_{}.csv".format(time.strftime('%y%m%d%H%M%S')) if log \
+            else "top_{}.csv".format(time.strftime('%y%m%d%H%M%S'))
+        self._csv_writer = self._build_csv_writer() if kwargs['cmd'] == 'analyze' else None
+
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_t, exc_v, tb):
+        self._fd.close()
 
     def _build_csv_writer(self):
         def _build_header():
+            if not os.path.exists(self._report_dir):
+                os.mkdir(self._report_dir)
+            self._csv = os.path.join(self._report_dir, self._csv)
             try:
                 with open(self._csv, 'wb') as f:
                     w = csv.DictWriter(f, self.csv_header)
@@ -122,8 +149,8 @@ class TopLogAnalyzer(object):
         except:
             raise
         try:
-            fd = open(self._csv, 'a')
-            w = csv.DictWriter(fd, self.csv_header)
+            self._fd = open(self._csv, 'a')
+            w = csv.DictWriter(self._fd, self.csv_header)
         except IOError:
             raise
         return w
@@ -171,17 +198,30 @@ class TopLogAnalyzer(object):
     def analyze(self, *args, **kwargs):
         print("Starts building csv report...")
         self._collect_data()
-        print("Ends building csv report")
+        print("Done!\nReport Generated:\n\t{}".format(self._csv))
+
+    def read_csv_report(self, csv_report, idx, num, asc=False):
+        print("\nreading {}...\n".format(csv_report))
+        #path = os.path.join(os.getcwd(), csv_report)
+        path = os.path.join(os.curdir, csv_report)
+        df = pd.read_csv(path)
+        print 75*"="
+        if idx == 'index':
+            print df.sort(ascending=asc).head(num)
+        else:
+            print df.sort(idx, ascending=asc).head(num)
+        print 75*"="
+        print "%40s"%"Statistic Info"
+        print "%45s"%(12*"==")
+        print df.describe()
+        print 75*"="
 
 
-def profiler():
-    #dir = sys.argv[3] or './photos'
-    #loops = int(sys.argv[4])
-    dir = './1000_pics'
-    #dir = './photos'
-    loops = 30
 
-    p = Profiler('report.csv', dir, info=False)
+def profiling(target_dir, loops, verbose=False):
+
+    p = Profiler("report_{}.csv".format(time.strftime('%y%m%d%M%S')),
+                 target_dir, info=verbose)
 
     for i in xrange(1, loops + 1):
         print("Round {0}......".format(i))
@@ -190,18 +230,54 @@ def profiler():
             p.info()
     print("Test Done! Building Report......")
 
-def analyze():
-    # analysis cmd[analyze | profiler] options
-    log = sys.argv[2]
-    pids_num = int(sys.argv[3])
-    user = sys.argv[-1]
-    analyzer = TopLogAnalyzer(log, pids_num, user)
-    analyzer.analyze()
+
+def main():
+
+    parser = OptionParser(USAGE)
+
+    parser.add_option('-a', action="store_true", dest="asc", default=False,
+                      help="display the records in ascending or descending")
+    parser.add_option('-c', '--count', type="int", dest="count", default=1,
+                      help='The test loops count')
+    parser.add_option('-d', '--dir', type="string", dest="dir", default='1000_pics',
+                      help='The directory contains test files')
+    parser.add_option('-i', '--index', type='string', dest='idx', default='virt',
+                      help='display by which index[cpu|mem|load_1~load_5|virt|res|shr]')
+    parser.add_option('-l', '--log', type="string", dest="log", default='top.log',
+                      help='The log to analzye')
+    parser.add_option('-n', '--number', type='int', dest="num",
+                      help='The number of pids to monitor or number of records to display')
+    parser.add_option('-r', '--report', type='string', dest="report", default='top.csv',
+                      help='The csv report to read')
+    parser.add_option('-u', '--user', type="string", dest="user", default='ubuntu',
+                      help='The user who runs the pids')
+    parser.add_option('-v', '--verbose', action='store_false', dest='verbose',
+                      default=False, help='print more details')
+
+    options, args = parser.parse_args()
+    if len(args) != 1:
+        parser.print_help()
+        print "Error: config the command"
+        return 1
+
+    cmd = args[0]
+    if cmd not in Commands:
+        parser.print_help()
+        print "Error: Unkown command: ", cmd
+        return 1
+
+    if cmd == 'analyze':
+        parameters = (options.log, options.num, options.user)
+        with TopLogAnalyzer(*parameters, cmd='analyze') as analyzer:
+            analyzer.analyze()
+    elif cmd == 'read':
+        analyzer = TopLogAnalyzer(cmd='read')
+        analyzer.read_csv_report(options.report, options.idx, options.num, options.asc)
+    elif cmd == 'profiling':
+        profiling(options.dir, options.count, options.verbose)
+
+
 
 if __name__ == "__main__":
-    if sys.argv[1] == 'analyze':
-        run = analyze
-    elif sys.argv[1] == 'profiler':
-        run = profiler
-    sys.exit(run())
+    sys.exit(main())
 
