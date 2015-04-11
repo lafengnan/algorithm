@@ -7,17 +7,19 @@ from time import time
 def timeit(f, *args, **kwargs):
     def deco(*args, **kwargs):
         b = time()
-        f(*args, **kwargs)
+        r = f(*args, **kwargs)
         e = time()
         print("Using {} seconds running {}".format(e - b, f.__name__))
+        return r
     return deco
 
 class Sorter:
 
     algorithms = ('bubble', 'bubble_recursion',
-                  'insert', 'insert_recursion',
-                  'merge_recursion',
-                  'heap_sort',
+                  'insert_exchange', 'insert_recursion',
+                  'insert_shift', 'merge_recursion',
+                  'merge_with_insert',
+                  'heap_sort','select_sort',
                   'qsort',
                  )
 
@@ -53,13 +55,25 @@ class Sorter:
             one_cycle(_a, len)
             self.bubble_recursion(_a, len=len-1)
 
-    def insert(self, data, *args, **kwargs):
+    def insert_exchange(self, data, *args, **kwargs):
         _a = data
         for i in xrange(1, len(_a)):
             for j in xrange(i, 0, -1):
                 if _a[j] < _a[j-1]:
                     _a[j], _a[j-1] = _a[j-1], _a[j]
                     self.count += 1
+            self.cycle += 1
+
+    def insert_shift(self, data, *args, **kwargs):
+        _a = data
+        for i in xrange(1, len(_a)):
+            key = _a[i]
+            j = i - 1
+            while key < _a[j] and j >= 0:
+                _a[j+1] = _a[j] # right shift _a[j]
+                j -= 1
+                self.count += 1
+            _a[j+1] = key
             self.cycle += 1
 
     def insert_recursion(self, data, *args, **kwargs):
@@ -81,6 +95,23 @@ class Sorter:
             one_cycle(_a, idx)
             self.insert_recursion(_a, idx=idx+1)
 
+    def select_sort(self, data, *args, **kwargs):
+        _a = data
+        for i in xrange(len(_a) - 1):
+            key = min = _a[i]
+            sentinel = i
+            for j in xrange(i+1, len(_a)):
+                if min > _a[j]:
+                    min = _a[j]
+                    sentinel = j
+                    self.count += 1
+            # sentinel has changed, means has data swaped
+            if sentinel != i:
+                _a[i] = min
+                _a[sentinel] = key
+            self.cycle += 1
+            print _a
+
     def merge_recursion(self, data, *args, **kwargs):
         def _merge(data, begin, mid, rear):
 
@@ -101,15 +132,35 @@ class Sorter:
                     data[k] = R[j]
                     j += 1
 
+        l = kwargs['low']
+        h = kwargs['high']
 
-        b = kwargs['begin']
-        r = kwargs['rear']
-        m = (b + r)/2
-        if b < r:
-            self.merge_recursion(data, begin=b, rear=m)
-            self.merge_recursion(data, begin=m+1, rear=r)
-            _merge(data, b, m, r)
+        if l < h:
+            m = (l + h)/2
+            self.merge_recursion(data, low=l, high=m)
+            self.merge_recursion(data, low=m+1, high=h)
+            _merge(data, l, m, h)
             self.cycle += 1
+
+    def merge_with_insert(self, data, *args, **kwargs):
+        def _insert(data, low, high):
+            _new = data[low:high+1]
+            self.insert_shift(_new)
+
+            k = low
+            len = high - low + 1
+            while k <= high:
+                data[k] = _new[k - len]
+                k += 1
+
+        l = kwargs['low']
+        h = kwargs['high']
+
+        if h -l >= 4:
+            m = (l + h)/2
+            self.merge_with_insert(data, low=l, high=m)
+            self.merge_with_insert(data, low=m+1, high=h)
+            _insert(data, l, h)
 
     def heap_sort(self, data, *args, **kwargs):
 

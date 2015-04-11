@@ -6,10 +6,10 @@ import os
 from optparse import OptionParser
 os.path.sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from algorithms import sort
+from algorithms import sort, polynomial
 from data_structure import linklist, stack
 
-Commands = ("sort", "singlelinklist", "stack")
+Commands = ("sort", "singlelinklist", "stack", 'poly')
 
 USAGE = """
 %prog <command> [options]
@@ -24,8 +24,8 @@ def main():
     parser = OptionParser(USAGE)
     parser.add_option('-s', '--sort', type="string", dest="sort", default='qsort',
                       help="config which sort algorithm to run[bubble|insert|merge|heapsort|qsort]")
-#    parser.add_option('-n', '--number', type="int", dest="number", default=50,
-#                      help="config the number of records to show")
+    parser.add_option('-p', '--poly', type="string", dest="poly", default='horner',
+                      help="config the polynomial evaluation algorithm[horner|naive]")
 #    parser.add_option('-a', action="store_true", dest="asc", default=False,
 #                      help="display the records in ascending or descending")
 #    parser.add_option('-i', '--index', type='string', dest='idx', default='duration',
@@ -56,17 +56,22 @@ def main():
             print "No such sort algorithm:{}".format(options.sort)
             return 1
 
-        if options.sort == 'bubble_recursion':
-            x.run('bubble_recursion', a, len=len(a))
-        elif options.sort == 'insert_recursion':
-            x.run('insert_recursion', a, idx=1)
-        elif options.sort == 'merge_recursion':
-            x.run('merge_recursion', a, begin=0, rear=len(a)-1)
-        elif options.sort == 'qsort':
-            x.run('qsort', a, low=0, high=len(a)-1)
+        method = options.sort
+
+        if method == 'bubble_recursion':
+            x.run(method, a, len=len(a))
+        elif method == 'insert_recursion':
+            x.run(method, a, idx=1)
+        elif method.startswith('merge') or method == 'qsort':
+            x.run(method, a, low=0, high=len(a)-1)
+            # Below case is used for get reversion-pare numbers in one sequence
+            # <<Introduction to Algorithms, page 24, 2-4>>, the reversion-pair
+            # number equals to the swap times of insert sort
+            # b = [2,3,8,6,1]
+            # x.run(method, b, low=0, high=len(b)-1)
         else:
             x.run(options.sort, a)
-            x.info()
+        x.info()
 
     elif cmd == 'singlelinklist':
         link_list = linklist.SingleLinkList()
@@ -88,6 +93,14 @@ def main():
         for i in xrange(10):
             s.push(i)
         s.travel_stack()
+
+    elif cmd == 'poly':
+        x = 5
+        factors = range(1000)
+        if options.poly == 'horner':
+            print polynomial.horner(x, factors)
+        else:
+            print polynomial.naive(x, factors)
 
 
 if __name__ == '__main__':
