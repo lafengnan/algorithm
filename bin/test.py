@@ -9,7 +9,7 @@ os.path.sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__
 from algorithms import sort, polynomial
 from data_structure import linklist, stack
 
-Commands = ("sort", "singlelinklist", "stack", 'poly')
+Commands = ("sort", "singlelinklist", "doublelinklist", "stack", 'poly')
 
 USAGE = """
 %prog <command> [options]
@@ -81,6 +81,22 @@ def main():
             mid = link_list.seek_mid()
             print "middle node index {}, data: {}".format(mid.idx, mid.data)
             #link_list.remove_node(mid.idx)
+    elif cmd == 'doublelinklist':
+        dllist = linklist.DoubleLinkList()
+        try:
+            for i in xrange(5):
+                dllist.insert_node(i)
+        except IndexError as e:
+            print e
+        print dllist
+        dllist.travel()
+        try:
+            dllist.insert_node('anan', 4)
+            dllist.insert_node('anan', 6)
+        except IndexError as e:
+            print e
+        print dllist
+        dllist.travel()
 
     elif cmd == 'stack':
         s = stack.Stack(size=10)

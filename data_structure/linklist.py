@@ -203,3 +203,156 @@ class SingleLinkList(object):
 
     def info(self):
         return self.len
+
+
+class DoubleLinkList(object):
+    """
+    Represents a double link list object. A double link list looks like the example below.(Has 3 data nodes)
+
+     DBList
+    .------.
+    | len  |
+    .------.                .------------------------------------.
+    | opts |                |                                    |
+    .------.       Node 0   |        Node 1           Node 2     |
+    | head |----->.------.  | .--->.------.    .---->.------.    |
+    .------.      | idx  |<-* |     | idx  |   |     | idx  |    |
+    | rear |      .------.    |     .------.   |     .------.    |
+    *------*      | data |    |     | data |   |     | data |    |
+       |          .------.    |     .------.   |     .------.    |
+       |          | next |----*     | next |---*     | next |----*
+       *--------->*------*          *------*         *------*
+                  | prev |<---------| prev |<--------| prev |
+                  *------*          *------*         *------*
+                     |                                  ^
+                     |                                  |
+                     *----------------------------------*
+
+    """
+    class _Node(object):
+        """
+        _Node represents a node in one double link list. It looks like the below figure.
+        @idx: the index of the node in one double link list
+        @data: the data stored in the node
+        @prev: the previos potiner of a node, it points to its previos node
+        @next: the next pointer of a node, it points to the next node
+
+        .------.
+        | idx  |
+        *------*
+        | data |
+        *------*
+        | prev |
+        *------*
+        | next |
+        *------*
+        """
+        def __init__(self, data, *args, **kwargs):
+            super(DoubleLinkList._Node, self).__init__()
+            self._idx = 0
+            self._data = data
+            self.next = self.prev = None
+            self._args = args
+            self._kwargs = kwargs
+
+        @property
+        def index(self):
+            return self._idx
+
+        @index.setter
+        def index(self, value):
+            self._idx = value
+            
+        @property
+        def data(self):
+            return self._data
+
+        @data.setter
+        def data(self, value):
+            self._data = value
+
+        def __str__(self):
+            return "\tindex:{}, data:{}, prev:{}, next:{}".format(self.index, self.data, self.prev.index, self.next.index)
+
+    def __init__(self, *args, **kwargs):
+        super(DoubleLinkList, self).__init__()
+        self._len = 0
+        self.args = args
+        self.node_cls = kwargs.get('node', None) or self._Node
+        self.head = self.rear = None
+        self.kwargs = kwargs
+
+    @property
+    def len(self):
+        return self._len
+
+    def inc_len(self):
+        self._len += 1
+
+    def __str__(self):
+        return "DoubleLinkList: {}, length: {}".format(hex(id(self)), self.len)
+
+    def insert_node(self, data, pos=-1, *args, **kwargs):
+        """
+        Insert a node into the list after the specified postion.
+        """
+        _node = self.node_cls(data)
+        # 1. Insert into an empty double link list
+        if self._len == 0:
+            self.head = self.rear = _node
+            _node.prev = _node.next = _node
+        # 2. Insert into a nonempty double link list
+        else:
+            # 2.1 In default insert the node from the begining
+            if pos == -1:
+                _node.next = self.head
+                self.head.prev = _node
+                self.head = _node
+                self.rear = _node
+                # Update index value
+                p = self.head.next
+                count = 0
+                while p and count < self.len:
+                    p.index += 1
+                    count += 1
+                    p = p.next
+                    # Rebuild last node and head node relaion:
+                    # tail->next = head
+                    # head->prev = tail
+                    if count == self.len - 1:
+                        p.next = self.head
+                        self.head.prev = p
+            # 2.2  pos represents the node to insert after
+            elif pos >= 0:
+                if pos >= self.len:
+                    raise IndexError("position:{} is beyond list length: {}".format(pos, self.len))
+                if pos < len:
+                    p = self.head
+                    cur = pos
+                    while cur:
+                        p = p.next
+                        cur -= 1
+                    # Insert
+                    _node.next = p.next
+                    p.next.prev = _node
+                    p.next = _node
+                    _node.prev = p
+
+                    # Increase index for the following nodes
+                    # Firtly Init new node index to p's index
+                    _node.index = p.index
+                    p = p.next
+                    cur = 0
+                    while p and cur < self.len - pos:
+                        p.index += 1
+                        p = p.next
+                        cur += 1
+        self.inc_len()
+
+    def travel(self):
+        p = self.head
+        cur = 0
+        while p and cur < self.len:
+            print p
+            p = p.next
+            cur += 1

@@ -25,7 +25,7 @@ def naive(x, factors):
     i = 0
 
     while i < len(factors):
-        r += factors[i]*x**i
+        r += factors[i] * x**i
         i += 1
 
     return r
