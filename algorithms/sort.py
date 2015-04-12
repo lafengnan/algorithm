@@ -132,9 +132,8 @@ class Sorter:
                     data[k] = R[j]
                     j += 1
 
-        l = kwargs['low']
-        h = kwargs['high']
-
+        l = kwargs.get('low', 0)
+        h = kwargs.get('high', -1)
         if l < h:
             m = (l + h)/2
             self.merge_recursion(data, low=l, high=m)
@@ -148,18 +147,22 @@ class Sorter:
             self.insert_shift(_new)
 
             k = low
-            len = high - low + 1
+            j = 0
             while k <= high:
-                data[k] = _new[k - len]
+                data[k] = _new[j]
                 k += 1
+                j += 1
 
-        l = kwargs['low']
-        h = kwargs['high']
+        l = kwargs.get('low', 0)
+        h = kwargs.get('high', -1)
+        shard_size = kwargs.get('shard_size', 4)
 
-        if h -l >= 4:
+        if h -l > shard_size - 1:
             m = (l + h)/2
             self.merge_with_insert(data, low=l, high=m)
             self.merge_with_insert(data, low=m+1, high=h)
+            _insert(data, l, h)
+        else:
             _insert(data, l, h)
 
     def heap_sort(self, data, *args, **kwargs):
@@ -232,8 +235,8 @@ class Sorter:
             self.cycle += 1
             return low
 
-        L = kwargs['low']
-        H = kwargs['high']
+        L = kwargs.get('low', 0)
+        H = kwargs.get('high', -1)
         if L < H:
             pivot_idx = _partition(data, L, H)
             self.qsort(data, low=L, high=pivot_idx-1)

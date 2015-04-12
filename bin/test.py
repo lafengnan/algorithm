@@ -22,21 +22,15 @@ Commands:
 def main():
 
     parser = OptionParser(USAGE)
-    parser.add_option('-s', '--sort', type="string", dest="sort", default='qsort',
+    parser.add_option('-a', '--algorithm', type="string", dest="algorithm", default='qsort',
                       help="config which sort algorithm to run[bubble|insert|merge|heapsort|qsort]")
     parser.add_option('-p', '--poly', type="string", dest="poly", default='horner',
                       help="config the polynomial evaluation algorithm[horner|naive]")
+    parser.add_option('-s', '--shardsize', type="int", dest="shard_size", default=4,
+                      help="config the shard size for merge_with_insert algorithm")
 #    parser.add_option('-a', action="store_true", dest="asc", default=False,
 #                      help="display the records in ascending or descending")
-#    parser.add_option('-i', '--index', type='string', dest='idx', default='duration',
-#                      help='display by which index[duration, latency]')
-#    parser.add_option('-l', '--log', type='string', dest='log', default='celery.log',
-#                      help='the log name which will be analyzed')
-#    parser.add_option('-r', '--report', type='string', dest='report', default='celery.csv',
-#                      help='the csv report to read')
-#    parser.add_option('-b', action='store_false', dest='browser',
-#                      default=False, help='Open report in browser or not')
-#
+
     options, args = parser.parse_args()
     if len(args) != 1:
         parser.print_help()
@@ -52,11 +46,11 @@ def main():
     if cmd == 'sort':
         a = [40, 50, 20, 0, 1, 2, -1 ,30]
         x = sort.Sorter()
-        if options.sort not in x.algorithms:
-            print "No such sort algorithm:{}".format(options.sort)
+        if options.algorithm not in x.algorithms:
+            print "No such sort algorithm:{}".format(options.algorithm)
             return 1
 
-        method = options.sort
+        method = options.algorithm
 
         if method == 'bubble_recursion':
             x.run(method, a, len=len(a))
@@ -67,8 +61,8 @@ def main():
             # Below case is used for get reversion-pare numbers in one sequence
             # <<Introduction to Algorithms, page 24, 2-4>>, the reversion-pair
             # number equals to the swap times of insert sort
-            # b = [2,3,8,6,1]
-            # x.run(method, b, low=0, high=len(b)-1)
+            b = [2, 3, 8, 6, 1, 5]
+            x.run(method, b, low=0, high=len(b)-1, shard_size=3)
         else:
             x.run(options.sort, a)
         x.info()
