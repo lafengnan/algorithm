@@ -275,10 +275,7 @@ class DoubleLinkList(object):
 
         def __str__(self):
             return "\tindex:{}, data:{}, prev:{}, next:{}"\
-                .format(self.index,
-                        self.data,
-                        self.prev.index,
-                        self.next.index)
+                .format(self.index, self.data, self.prev.index, self.next.index)
 
     def __init__(self, *args, **kwargs):
         super(DoubleLinkList, self).__init__()
@@ -287,6 +284,9 @@ class DoubleLinkList(object):
         self.node_cls = kwargs.get('node', None) or self._Node
         self.head = self.rear = None
         self.kwargs = kwargs
+        
+    def __str__(self):
+        return "DoubleLinkList: {}, length: {}".format(hex(id(self)), self.len)
 
     @property
     def len(self):
@@ -295,11 +295,9 @@ class DoubleLinkList(object):
     def inc_len(self):
         self._len += 1
 
-    def dec_len(self):
+    def _free(self, node):
+        del node
         self._len -= 1
-
-    def __str__(self):
-        return "DoubleLinkList: {}, length: {}".format(hex(id(self)), self.len)
 
     def insert_node(self, data, pos=-1, *args, **kwargs):
         """
@@ -367,7 +365,10 @@ class DoubleLinkList(object):
         if self.len == 0:
             return
         else:
-            if pos < self.len:
+            if pos >= self.len:
+                raise IndexError("Position:{} is over list range:{}"\
+                                 .format(pos, self.len))
+            else:
                 cur = pos
                 p = self.head
                 # Remove the first node
@@ -383,8 +384,7 @@ class DoubleLinkList(object):
                     p.prev.next = p.next
                     p.next.prev = p.prev
                     p.next = p.prev = None
-                del p
-                self.dec_len()
+                self._free(p)
                 # Update index
                 cur = pos
                 p = self.head
@@ -396,10 +396,7 @@ class DoubleLinkList(object):
                     p.index -= 1
                     p = p.next
                     update += 1
-            else:
-                raise IndexError("Position:{} is over list range:{}"\
-                                 .format(pos, self.len))
-
+            
     def travel(self):
         p = self.head
         cur = 0
