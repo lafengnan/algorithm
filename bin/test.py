@@ -81,9 +81,11 @@ def main():
             node = linklist.Node(data[i])
             link_list.insert_node_rear(node)
             #link_list.insert_node_head(node)
-            print("list length: {}".format(link_list.info()))
+            print link_list
+            print "trave list:"
             link_list.travel_list()
             link_list.reverse_list()
+            print "after reverse:"
             link_list.travel_list()
             mid = link_list.seek_mid()
             print "middle node index {}, data: {}".format(mid.idx, mid.data)
@@ -98,8 +100,14 @@ def main():
         print dllist
         dllist.travel()
         try:
-            dllist.insert_node('anan', 4)
-            dllist.insert_node('anan', 6)
+            dllist.insert_node('anan', 3)
+            #dllist.insert_node('anan', 6)
+        except IndexError as e:
+            print e
+        print dllist
+        dllist.travel()
+        try:
+            dllist.remove_node(2)
         except IndexError as e:
             print e
         print dllist

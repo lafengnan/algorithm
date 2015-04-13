@@ -63,6 +63,10 @@ class SingleLinkList(object):
         self.head = None
         self.rear = None
 
+    def __str__(self):
+        return "List:{}\n\tlen = {}\n\thead = {}\n\trear ={}"\
+                .format(hex(id(self)), self.len, self.head, self.rear)
+
     def insert_node_head(self, node):
         if isinstance(node, Node):
             # Head is None, means empty link list
@@ -201,10 +205,6 @@ class SingleLinkList(object):
             print p
             p = p.next
 
-    def info(self):
-        return self.len
-
-
 class DoubleLinkList(object):
     """
     Represents a double link list object. A double link list looks like the
@@ -295,6 +295,9 @@ class DoubleLinkList(object):
     def inc_len(self):
         self._len += 1
 
+    def dec_len(self):
+        self._len -= 1
+
     def __str__(self):
         return "DoubleLinkList: {}, length: {}".format(hex(id(self)), self.len)
 
@@ -355,6 +358,47 @@ class DoubleLinkList(object):
                         p = p.next
                         cur += 1
         self.inc_len()
+
+    def remove_node(self, pos):
+        """
+        Remove the node @pos
+        """
+        # 1. Empty list, return
+        if self.len == 0:
+            return
+        else:
+            if pos < self.len:
+                cur = pos
+                p = self.head
+                # Remove the first node
+                if cur == 0:
+                    self.head = p.next
+                    p.prev.next = p.next
+                    p.next.prev = p.prev
+                    p.prev = p.next = None
+                else:
+                    while cur:
+                        p = p.next
+                        cur -= 1
+                    p.prev.next = p.next
+                    p.next.prev = p.prev
+                    p.next = p.prev = None
+                del p
+                self.dec_len()
+                # Update index
+                cur = pos
+                p = self.head
+                while cur:
+                    p = p.next
+                    cur -= 1
+                update = 0
+                while update < self.len - pos:
+                    p.index -= 1
+                    p = p.next
+                    update += 1
+            else:
+                raise IndexError("Position:{} is over list range:{}"\
+                                 .format(pos, self.len))
 
     def travel(self):
         p = self.head
