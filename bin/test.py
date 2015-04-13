@@ -4,7 +4,8 @@
 import sys
 import os
 from optparse import OptionParser
-os.path.sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+os.path.sys.path.append(os.path.dirname
+                        (os.path.dirname(os.path.abspath(__file__))))
 
 from algorithms import sort, polynomial
 from data_structure import linklist, stack
@@ -22,12 +23,18 @@ Commands:
 def main():
 
     parser = OptionParser(USAGE)
-    parser.add_option('-a', '--algorithm', type="string", dest="algorithm", default='qsort',
-                      help="config which sort algorithm to run[bubble|insert|merge|heapsort|qsort]")
-    parser.add_option('-p', '--poly', type="string", dest="poly", default='horner',
-                      help="config the polynomial evaluation algorithm[horner|naive]")
-    parser.add_option('-s', '--shardsize', type="int", dest="shard_size", default=4,
-                      help="config the shard size for merge_with_insert algorithm")
+    parser.add_option('-a', '--algorithm', type="string", dest="algorithm",
+                      default='qsort',
+                      help="config which sort algorithm to\
+                      run[bubble|insert|merge|heapsort|qsort]")
+    parser.add_option('-p', '--poly', type="string", dest="poly",
+                      default='horner',
+                      help="config the polynomial evaluation\
+                      algorithm[horner|naive]")
+    parser.add_option('-s', '--shardsize', type="int", dest="shard_size",
+                      default=4,
+                      help="config the shard size for merge_with_insert\
+                      algorithm")
 #    parser.add_option('-a', action="store_true", dest="asc", default=False,
 #                      help="display the records in ascending or descending")
 

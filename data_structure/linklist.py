@@ -207,7 +207,8 @@ class SingleLinkList(object):
 
 class DoubleLinkList(object):
     """
-    Represents a double link list object. A double link list looks like the example below.(Has 3 data nodes)
+    Represents a double link list object. A double link list looks like the
+    example below.(Has 3 data nodes)
 
      DBList
     .------.
@@ -231,7 +232,8 @@ class DoubleLinkList(object):
     """
     class _Node(object):
         """
-        _Node represents a node in one double link list. It looks like the below figure.
+        _Node represents a node in one double link list. It looks like the
+        below figure.
         @idx: the index of the node in one double link list
         @data: the data stored in the node
         @prev: the previos potiner of a node, it points to its previos node
@@ -262,7 +264,7 @@ class DoubleLinkList(object):
         @index.setter
         def index(self, value):
             self._idx = value
-            
+
         @property
         def data(self):
             return self._data
@@ -272,7 +274,11 @@ class DoubleLinkList(object):
             self._data = value
 
         def __str__(self):
-            return "\tindex:{}, data:{}, prev:{}, next:{}".format(self.index, self.data, self.prev.index, self.next.index)
+            return "\tindex:{}, data:{}, prev:{}, next:{}"\
+                .format(self.index,
+                        self.data,
+                        self.prev.index,
+                        self.next.index)
 
     def __init__(self, *args, **kwargs):
         super(DoubleLinkList, self).__init__()
@@ -325,7 +331,8 @@ class DoubleLinkList(object):
             # 2.2  pos represents the node to insert after
             elif pos >= 0:
                 if pos >= self.len:
-                    raise IndexError("position:{} is beyond list length: {}".format(pos, self.len))
+                    raise IndexError("position:{} is over list length: {}"\
+                                     .format(pos, self.len))
                 if pos < len:
                     p = self.head
                     cur = pos
