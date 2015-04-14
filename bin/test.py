@@ -81,15 +81,18 @@ def main():
             node = linklist.Node(data[i])
             link_list.insert_node_rear(node)
             #link_list.insert_node_head(node)
-            print link_list
-            print "trave list:"
-            link_list.travel_list()
-            link_list.reverse_list()
-            print "after reverse:"
-            link_list.travel_list()
-            mid = link_list.seek_mid()
-            print "middle node index {}, data: {}".format(mid.idx, mid.data)
-            #link_list.remove_node(mid.idx)
+        print link_list
+        print "trave list:"
+        link_list.travel_list()
+        link_list.reverse_list()
+        print "after reverse:"
+        link_list.travel_list()
+        mid = link_list.seek_mid()
+        print "middle node index {}, data: {}".format(mid.idx, mid.data)
+        link_list[mid.idx] = 'anan'
+        link_list.travel_list()
+        print link_list[0]
+        #link_list.remove_node(mid.idx)
     elif cmd == 'doublelinklist':
         dllist = linklist.DoubleLinkList()
         try:
@@ -101,16 +104,21 @@ def main():
         dllist.travel()
         try:
             dllist.insert_node('anan', 3)
-            #dllist.insert_node('anan', 6)
         except IndexError as e:
             print e
         print dllist
         dllist.travel()
+        for p in dllist:
+            print p
         try:
             dllist.remove_node(2)
         except IndexError as e:
             print e
         print dllist
+        dllist.travel()
+        print "\n", dllist[4]
+        dllist[0] = 'anan'
+        print "\n"
         dllist.travel()
 
     elif cmd == 'stack':

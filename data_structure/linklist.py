@@ -63,9 +63,30 @@ class SingleLinkList(object):
         self.head = None
         self.rear = None
 
+    def __getitem__(self, idx):
+        self.assert_valid_index(idx)
+        p = self.head
+        while idx:
+            p = p.next
+            idx -= 1
+        return p
+
+    def __setitem__(self, idx, value):
+        self.assert_valid_index(idx)
+        p = self.head
+        while idx:
+            p = p.next
+            idx -= 1
+        p.data  = value
+
     def __str__(self):
         return "List:{}\n\tlen = {}\n\thead = {}\n\trear ={}"\
                 .format(hex(id(self)), self.len, self.head, self.rear)
+
+    def assert_valid_index(self, idx):
+        if idx < 0 or idx >= self.len:
+            raise IndexError("index:{} is out of range:[{} - {}]"\
+                            .format(idx, 0, self.len - 1))
 
     def insert_node_head(self, node):
         if isinstance(node, Node):
@@ -284,6 +305,22 @@ class DoubleLinkList(object):
         self.node_cls = kwargs.get('node', None) or self._Node
         self.head = self.rear = None
         self.kwargs = kwargs
+
+    def __getitem__(self, idx):
+        self.assert_valid_index(idx)
+        p = self.head
+        while idx:
+            p = p.next
+            idx -= 1
+        return p
+
+    def __setitem__(self, idx, value):
+        self.assert_valid_index(idx)
+        p = self.head
+        while idx:
+            p = p.next
+            idx -= 1
+        p.data  = value
         
     def __str__(self):
         return "DoubleLinkList: {}, length: {}".format(hex(id(self)), self.len)
@@ -298,6 +335,11 @@ class DoubleLinkList(object):
     def _free(self, node):
         del node
         self._len -= 1
+
+    def assert_valid_index(self, idx):
+        if idx < 0 or idx >= self.len:
+            raise IndexError("index:{} is out of range:[{} - {}]"\
+                            .format(idx, 0, self.len - 1))
 
     def insert_node(self, data, pos=-1, *args, **kwargs):
         """
