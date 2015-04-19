@@ -3,6 +3,7 @@
 
 import sys
 import os
+import random
 from optparse import OptionParser
 os.path.sys.path.append(os.path.dirname
                         (os.path.dirname(os.path.abspath(__file__))))
@@ -10,7 +11,8 @@ os.path.sys.path.append(os.path.dirname
 from algorithms import sort, polynomial
 from data_structure import linklist, stack
 
-Commands = ("sort", "singlelinklist", "doublelinklist", "stack", 'poly')
+Commands = ("sort", "singlelinklist", "doublelinklist",
+            "search", "stack", 'poly')
 
 USAGE = """
 %prog <command> [options]
@@ -35,8 +37,8 @@ def main():
                       default=4,
                       help="config the shard size for merge_with_insert\
                       algorithm")
-#    parser.add_option('-a', action="store_true", dest="asc", default=False,
-#                      help="display the records in ascending or descending")
+    parser.add_option('-v', action="store_true", dest="verbose", default=False,
+                      help="verbose mode")
 
     options, args = parser.parse_args()
     if len(args) != 1:
@@ -52,6 +54,7 @@ def main():
 
     if cmd == 'sort':
         a = [40, 50, 20, 0, 1, 2, -1 ,30]
+        b = range(1000, -1, -1)
         x = sort.Sorter()
         if options.algorithm not in x.algorithms:
             print "No such sort algorithm:{}".format(options.algorithm)
@@ -68,10 +71,12 @@ def main():
             # Below case is used for get reversion-pare numbers in one sequence
             # <<Introduction to Algorithms, page 24, 2-4>>, the reversion-pair
             # number equals to the swap times of insert sort
-            b = [2, 3, 8, 6, 1, 5]
-            x.run(method, b, low=0, high=len(b)-1, shard_size=3)
+            #c = [2, 3, 8, 6, 1, 5]
+            #x.run(method, c, low=0, high=len(b)-1, shard_size=3)
+            x.run(method, b, low=0, high=len(b)-1)
         else:
             x.run(options.sort, a)
+            x.run(options.sort, b)
         x.info()
 
     elif cmd == 'singlelinklist':
@@ -122,10 +127,12 @@ def main():
         dllist.travel()
 
     elif cmd == 'stack':
-        s = stack.Stack(size=10)
+        s = stack.Stack(size=15)
         for i in xrange(10):
             s.push(i)
-        s.travel_stack()
+        s.info()
+        print "stack size:{}, active elements:{}, free_space:{}"\
+                .format(s.size, len(s), s.free)
 
     elif cmd == 'poly':
         x = 5
@@ -134,6 +141,17 @@ def main():
             print polynomial.horner(x, factors)
         else:
             print polynomial.naive(x, factors)
+
+    elif cmd == 'search':
+        a = [40, 50, 40, 20, 0, 1, 2, -1 ,30]
+        b = range(1000,0,-1)
+        search = sort.Search('bisearch_none_recursion', verbose=options.verbose)
+        print search.search(1, a)
+        #print search.search(0, a)
+        #print search.search(2, a)
+        #print search.search(40, a)
+        #print search.search(60, a)
+        print search.search(20, b)
 
 
 if __name__ == '__main__':
