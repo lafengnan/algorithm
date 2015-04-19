@@ -177,7 +177,7 @@ class Sorter(object):
                 stk.push(mid+1)
                 stk.push(h)
             _merge(data, l, mid, h)
-            while not stk.isEmpty():
+            while not stk.isEmpty:
                 sh = stk.top
                 stk.pop()
                 sl = stk.top
@@ -330,7 +330,7 @@ class Sorter(object):
             if mid + 1 < h:
                 stk.push(mid+1)
                 stk.push(h)
-            while not stk.isEmpty():
+            while not stk.isEmpty:
                 if self._verbose:
                     stk.travel_stack()
                 sh = stk.top
@@ -366,7 +366,7 @@ class Search(object):
     Search class defines the method about how to search a specified key in one
     sequence.
     """
-    algorithms = ("bisearch", "bisearch_none_recursion")
+    algorithms = ("bisearch", "bisearch_none_recursion", "bisearch_loop")
 
     def __init__(self, algorithm='bisearch', *args, **kwargs):
         assert algorithm in self.algorithms
@@ -407,7 +407,7 @@ class Search(object):
         else:
             stk.push(l)
             stk.push(h)
-            while not stk.isEmpty():
+            while not stk.isEmpty:
                 sh = stk.top
                 stk.pop()
                 sl = stk.top
@@ -422,6 +422,24 @@ class Search(object):
                     stk.push(mid+1)
                     stk.push(sh)
         return False, -1
+
+    def _bisearch_loop(self, k, seq, **kwargs):
+        assert len(seq) != 0
+        l = kwargs.get('low', 0)
+        h = kwargs.get('high', -1)
+        if l < h:
+            mid = (l + h) >> 1
+            while k != seq[mid] and mid >= 0:
+                mid = (l + h) >> 1
+                if k < seq[mid]:
+                    h = mid - 1
+                else:
+                    l = mid + 1
+                if mid == h or mid == l:
+                    break
+
+            return (True, mid) if k == seq[mid] else (False, -1)
+
 
     def search(self, key, seq):
         sorter = Sorter(verbose=False)

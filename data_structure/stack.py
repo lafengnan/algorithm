@@ -24,10 +24,14 @@ class Stack(object):
         self._verbose = kwargs.get('verbose', False)
         if self._verbose:
             debug("Building {}".format(self), "Info")
+    
+    @property
+    def isEmpty(self):
+        return self.free_space == self.size
 
     @property
     def top(self):
-        if not self.isEmpty():
+        if not self.isEmpty:
             return self._top.data
         else:
             raise Exception("Empty Stack!")
@@ -68,7 +72,7 @@ class Stack(object):
         self._top = self._store.head
 
     def pop(self):
-        if self._base != self._top:
+        if not self.isEmpty:
             data = self._store.head.data
             self._store.remove_node(0)
             self._free += 1
@@ -77,10 +81,7 @@ class Stack(object):
             data = None
         return data
 
-    def isEmpty(self):
-        return self._base == self._top
-
     def info(self):
-        print "stack:{}:\n".format(self.name)
-        if self._base != self._top:
+        debug(str(self))
+        if not self.isEmpty:
             self._store.travel_list()

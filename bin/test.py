@@ -145,13 +145,15 @@ def main():
     elif cmd == 'search':
         a = [40, 50, 40, 20, 0, 1, 2, -1 ,30]
         b = range(1000,0,-1)
-        search = sort.Search('bisearch_none_recursion', verbose=options.verbose)
+        search = sort.Search(options.algorithm, verbose=options.verbose)
         print search.search(1, a)
         #print search.search(0, a)
         #print search.search(2, a)
         #print search.search(40, a)
         #print search.search(60, a)
         print search.search(20, b)
+        print search.search(90, b)
+        print search.search(90, a)
 
     elif cmd == 'queue':
         a = [40, 50, 40, 20, 0, 1, 2, -1 ,30]
