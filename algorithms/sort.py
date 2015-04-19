@@ -177,7 +177,7 @@ class Sorter(object):
                 stk.push(mid+1)
                 stk.push(h)
             _merge(data, l, mid, h)
-            while not stk.empty():
+            while not stk.isEmpty():
                 sh = stk.top
                 stk.pop()
                 sl = stk.top
@@ -330,7 +330,7 @@ class Sorter(object):
             if mid + 1 < h:
                 stk.push(mid+1)
                 stk.push(h)
-            while not stk.empty():
+            while not stk.isEmpty():
                 if self._verbose:
                     stk.travel_stack()
                 sh = stk.top
@@ -407,7 +407,7 @@ class Search(object):
         else:
             stk.push(l)
             stk.push(h)
-            while not stk.empty():
+            while not stk.isEmpty():
                 sh = stk.top
                 stk.pop()
                 sl = stk.top

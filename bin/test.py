@@ -9,10 +9,10 @@ os.path.sys.path.append(os.path.dirname
                         (os.path.dirname(os.path.abspath(__file__))))
 
 from algorithms import sort, polynomial
-from data_structure import linklist, stack
+from data_structure import linklist, stack, queue
 
 Commands = ("sort", "singlelinklist", "doublelinklist",
-            "search", "stack", 'poly')
+            "search", "stack", 'poly', 'queue')
 
 USAGE = """
 %prog <command> [options]
@@ -127,12 +127,12 @@ def main():
         dllist.travel()
 
     elif cmd == 'stack':
-        s = stack.Stack(size=15)
+        s = stack.Stack(size=15, verbose=options.verbose)
         for i in xrange(10):
             s.push(i)
         s.info()
         print "stack size:{}, active elements:{}, free_space:{}"\
-                .format(s.size, len(s), s.free)
+                .format(s.size, len(s), s.free_space)
 
     elif cmd == 'poly':
         x = 5
@@ -153,6 +153,26 @@ def main():
         #print search.search(60, a)
         print search.search(20, b)
 
+    elif cmd == 'queue':
+        a = [40, 50, 40, 20, 0, 1, 2, -1 ,30]
+        q = queue.Queue(size=20, verbose=options.verbose)
+        for x in a:
+            q.enqueue(x)
+        q.info()
+        print q[3]
+        q[3] = 'anan'
+        q.info()
+        print q.head, q.rear
+        i = 0
+        while i < len(a):
+            try:
+                q.dequeue()
+            except Exception as e:
+                pass
+            i += 1
+        q.info()
+        print q.head, q.rear
+        
 
 if __name__ == '__main__':
     sys.exit(main())

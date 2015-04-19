@@ -1,8 +1,9 @@
 #! /usr/bin/env python
 # coding=utf-8
 
-from linklist import SingleLinkList, Node
 from uuid import uuid4
+from linklist import SingleLinkList
+from data_structure import debug
 
 
 class Stack(object):
@@ -20,10 +21,16 @@ class Stack(object):
         self._args = args
         self._kwargs = kwargs
         self._name = kwargs.get('name', str(uuid4()))
+        self._verbose = kwargs.get('verbose', False)
+        if self._verbose:
+            debug("Building {}".format(self), "Info")
 
     @property
     def top(self):
-        return self._top.data
+        if not self.isEmpty():
+            return self._top.data
+        else:
+            raise Exception("Empty Stack!")
 
     @property
     def base(self):
@@ -34,7 +41,7 @@ class Stack(object):
         return self._size
 
     @property
-    def free(self):
+    def free_space(self):
         return self._free
 
     @property
@@ -44,12 +51,18 @@ class Stack(object):
     @name.setter
     def name(self, new_name):
         self._name = new_name
+        
+    def __str__(self):
+        return "Stack {}: size:{}, free:{}"\
+                .format(self.name, self._size, self.free_space)
+
+    def __len__(self):
+        return self.size - self.free_space
 
     def push(self, data):
-        if self._free == 0:
+        if self.free_space == 0:
             raise Exception("Stack is full!")
-        _node = Node(data)
-        self._store.insert_node_head(_node)
+        self._store.insert_node_head(data)
         self._free -= 1
         self._base = self._store.rear
         self._top = self._store.head
@@ -64,15 +77,8 @@ class Stack(object):
             data = None
         return data
 
-    def empty(self):
+    def isEmpty(self):
         return self._base == self._top
-    
-    def __str__(self):
-        return "stack {}: size:{}, free:{}"\
-                .format(id(self), self._size, self._free)
-
-    def __len__(self):
-        return self.size - self.free
 
     def info(self):
         print "stack:{}:\n".format(self.name)

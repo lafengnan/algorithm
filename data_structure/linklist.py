@@ -56,6 +56,8 @@ class SingleLinkList(object):
                *---------------------------------------*
 
     """
+    node_cls = Node
+
     def __init__(self, **kwargs):
         super(SingleLinkList, self).__init__()
         self.len = 0
@@ -88,8 +90,9 @@ class SingleLinkList(object):
             raise IndexError("index:{} is out of range:[{} - {}]"\
                             .format(idx, 0, self.len - 1))
 
-    def insert_node_head(self, node):
-        if isinstance(node, Node):
+    def insert_node_head(self, data):
+        node = self.node_cls(data)
+        if isinstance(node, self.node_cls):
             # Head is None, means empty link list
             if not self.head:
                 self.head = node
@@ -106,8 +109,9 @@ class SingleLinkList(object):
         else:
             raise Exception("Wrong type node!")
 
-    def insert_node_rear(self, node):
-        if isinstance(node, Node):
+    def insert_node_rear(self, data):
+        node = self.node_cls(data)
+        if isinstance(node, self.node_cls):
             # Head is None, means empty link list
             if not self.head:
                 self.head = node
@@ -122,7 +126,7 @@ class SingleLinkList(object):
         else:
             raise Exception("Wrong type node!")
 
-    def remove_node(self, idx):
+    def remove_node(self, idx=0):
         """
         Remove the idxth node from link list
         """
@@ -135,8 +139,12 @@ class SingleLinkList(object):
 
         # Delete first node
         if idx == 0:
-            self.head = p.next
-            p.next = None
+            # Only one node --- the rear node
+            if self.len == 1:
+                self.head = self.rear = None
+            else:
+                self.head = p.next
+            p.next = q.next = None
         else:
             while idx:
                 q = p
