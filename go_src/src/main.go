@@ -2,7 +2,9 @@ package main
 
 import (
     "fmt"
-    "github.com/docopt/docopt-go"
+    "flag"
+    "os"
+    "algorithm"
 )
 
 var usage = `usage: sorter [-i <input data file>] [-o <output sorted data file>] [-a <the sort algorithm>]
@@ -14,36 +16,50 @@ options:
 `
 
 var banner string = `
-   ______    ___
-  / ____/   (* *)
- (___  )   (  0  )
-/_____/   (  ___  )
+
+||\\  ||     A     ||        A
+|| \\ ||   //_\\   ||      //_\\
+||  \\||  //   \\  ||___  //   \\
 `
+
 var (
-    infile string = "indata"
-    outfile string = "outdata"
-    algorithm string = "qsort"
+    infile = flag.String("i", "indata", "")
+    outfile = flag.String("o", "outdata", "")
+    algorithms = flag.String("a", "qsort", "")
 )
 
 func main() {
     fmt.Print(banner)
-    args, err := docopt.Parse(usage, nil, true, "sorter 0.1", true)
+    flag.Usage = func() {
+        fmt.Fprint(os.Stderr, "\n\n")
+        fmt.Fprint(os.Stderr, fmt.Sprintf(usage))
+    }
+
+    flag.Parse()
+
+    var s algorithm.Sorter = &algorithm.GoSorter{
+        Name : "anan",
+        Cycle : 0,
+        Count : 0,
+        Verbose : false,
+    }
+
+    seq := []int{3,2,1,0} // test
+    seq, err := s.BubbleSort(seq)
     if err != nil {
         fmt.Println(err)
+    } else {
+        fmt.Println(seq)
     }
 
-    if args["-i"] != nil {
-        infile = args["-i"].(string)
+}
+
+func showUsageAndExit(msg string) {
+    if msg != "" {
+        fmt.Fprint(os.Stderr, msg)
+        fmt.Fprint(os.Stderr, "\n\n")
     }
-
-    if args["-o"] != nil {
-        outfile = args["-o"].(string)
-    }
-
-    if args["-a"] != nil {
-        algorithm = args["-a"].(string)
-    }
-
-    fmt.Print("infile=", infile, "outfile=", outfile, "algorithm=", algorithm)
-
+    flag.Usage()
+    fmt.Fprint(os.Stderr, "\n")
+    os.Exit(1)
 }

@@ -1,17 +1,31 @@
 package algorithm
 
 type Sorter interface {
-    BubbuleSort(seq []interface{}) (out []interface{}, err error)
-    InsertSort(seq []interface{}) (out []interface{}, err error)
-    SelectSort(seq []interface{}) (out []interface{}, err error)
-    QSort(seq []interface{}, low, high int) (out []interface{}, err error)
-    MergeSort(seq []interface{}, low, high int) (out []interface{}, err error)
-    HeapSort(seq []interface{}, low, high int) (out []interface{}, err error)
+    BubbleSort(seq []int) (out []int, err error)
+    /*
+    InsertSort(seq []int) (out []int, err error)
+    SelectSort(seq []int) (out []int, err error)
+    QSort(seq []int, low, high int) (out []int, err error)
+    MergeSort(seq []int, low, high int) (out []int, err error)
+    HeapSort(seq []int, low, high int) (out []int, err error)
+    */
 }
 
 type GoSorter struct {
-    name string
-    cycle int
-    count int
-    verbose bool 
+    Name string
+    Cycle int
+    Count int
+    Verbose bool 
 } 
+
+func (s *GoSorter) BubbleSort(seq []int) (out []int, err error) {
+    out = seq
+    for j := len(seq) - 1; j > 0; j-- {
+        for i := 0; i < j; i++ {
+            if seq[i] > seq[i+1] {
+                seq[i], seq[i+1] = seq[i+1], seq[i]
+            }
+        }
+    }
+    return 
+}
