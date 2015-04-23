@@ -2,8 +2,8 @@ package algorithm
 
 type Sorter interface {
     BubbleSort(seq []int) (out []int, err error)
-    /*
     InsertSort(seq []int) (out []int, err error)
+    /*
     SelectSort(seq []int) (out []int, err error)
     QSort(seq []int, low, high int) (out []int, err error)
     MergeSort(seq []int, low, high int) (out []int, err error)
@@ -28,4 +28,21 @@ func (s *GoSorter) BubbleSort(seq []int) (out []int, err error) {
         }
     }
     return 
+}
+
+func (s *GoSorter) InsertSort(seq []int) (out []int, err error) {
+    out = seq
+    var i, j int
+    for i = 1; i < len(seq); i++ {
+        key := seq[i]
+        for j = i - 1; j >= 0; j-- {
+            if key <= seq[j]{
+                seq[j+1] = seq[j]
+            } else {
+                break
+            }
+        }
+        seq[j+1] = key
+    }
+    return
 }

@@ -44,8 +44,10 @@ func main() {
         Verbose : false,
     }
 
-    seq := []int{3,2,1,0} // test
-    seq, err := s.BubbleSort(seq)
+    seq := []int{3,2,1,0, -1, 5, 0, 2} // test
+    var err error
+    seq, err = s.BubbleSort(seq)
+    seq, err = s.InsertSort(seq)
     if err != nil {
         fmt.Println(err)
     } else {
