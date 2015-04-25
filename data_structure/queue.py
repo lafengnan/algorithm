@@ -150,11 +150,11 @@ class PQueue(Queue):
             l = _left(idx)
             r = _right(idx)
 
-            if l <= q._heap_size and q[l] > q[idx]:
+            if l <= q._heap_size and q[l]['priority'] > q[idx]['priority']:
                 largest = l
             else:
                 largest = idx
-            if r <= q._heap_size and q[r] > q[largest]:
+            if r <= q._heap_size and q[r]['priority'] > q[largest]['priority']:
                 largest = r
             if largest != idx:
                 q[idx], q[largest] = q[largest], q[idx]
@@ -163,11 +163,9 @@ class PQueue(Queue):
         if self._heap_size < 1:
             raise Exception("Heap underflow!")
 
-        q, max = self, self[0]
-        q[0] = q[q._heap_size - 1]
+        q = self
         q._heap_size -= 1
         _max_heapify(q, 0)
-        return max
 
     def enqueue(self, data, priority):
         if self.isFull:
@@ -188,11 +186,12 @@ class PQueue(Queue):
         if self.isEmpty:
             raise Exception("Empty Queue!")
         try:
-            data = self._heap_extract_max()
+            data = self[0]
             self._store.remove_node(0)
             self._head = self._store.head
             self._rear = self._store.rear
             self._free += 1
+            self._heap_extract_max()
             return data
         except Exception:
             raise

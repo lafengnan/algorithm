@@ -190,10 +190,8 @@ def main():
             exc_type, exc_value, exc_tb = sys.exc_info()
             debug(traceback.print_tb(exc_tb, file=sys.stdout), "Exception")
         q.info()
-        print q.head, q.rear
         print "dequeue: ", q.dequeue()
         q.info()
-        print q.head, q.rear
         
 
 if __name__ == '__main__':

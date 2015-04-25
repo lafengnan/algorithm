@@ -250,9 +250,8 @@ class Sorter(object):
             for i in xrange(len(data)/2, -1, -1):
                 try:
                     _max_heapify(data, i, len(data))
-                except Exception as e:
-                    print e
-                    raise Exception("build heap failed!")
+                except Exception:
+                    raise
 
         try:
             _build_max_heap(data)
