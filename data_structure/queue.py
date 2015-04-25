@@ -115,7 +115,7 @@ class PQueue(Queue):
     the priority number SHOULD be a none-negative interge.
     """
     store_cls = SingleLinkList
-    MAX_V = 0x7fffffff #Represents infinity 
+    MIN_PRI = -0x7fffffff #Represents infinity 
 
     def __init__(self, capacity=1024, *args, **kwargs):
         super(PQueue, self).__init__(capacity, *args, **kwargs)
@@ -138,9 +138,7 @@ class PQueue(Queue):
         if 'priority' not in data.keys():
             raise Exception("Data:{} missing priority info".format(data))
         q._heap_size += 1
-        # Seems this step is not useful! Don't match p81 of
-        # <<Introduction to Algorithms>>
-        #q[q._heap_size - 1] = {'priority':q.MAX_V, 'data':q.MAX_V}
+        #q[q._heap_size - 1] = {'priority':q.MIN_PRI, 'data':"xxx"}
         _heap_increase_key(q, q._heap_size - 1, data)
 
     def _heap_extract_max(self):
