@@ -6,14 +6,14 @@ class Queue(object):
     """
     Queue reprensts a FIFO queue. A single link list will be used as
     its internal storage.
-    @size: the queue size
+    @capacity: the queue capacity
     @name: the queue name
     """
     store_cls = SingleLinkList
 
-    def __init__(self, size=1024, *args, **kwargs):
-        self._size = size
-        self._free = size
+    def __init__(self, capacity=1024, *args, **kwargs):
+        self._capacity = capacity
+        self._free = capacity
         self._store = self.store_cls()
         self._head = self._store.head
         self._rear = self._store.rear
@@ -39,8 +39,8 @@ class Queue(object):
         self._name = new_name
 
     @property
-    def size(self):
-        return self._size
+    def capacity(self):
+        return self._capacity
 
     @property
     def free_space(self):
@@ -48,24 +48,24 @@ class Queue(object):
 
     @property
     def isEmpty(self):
-        return self.free_space == self.size
+        return self.free_space == self.capacity
     
     @property
     def isFull(self):
         return self.free_space == 0
 
     def __len__(self):
-        return self.size - self.free_space
+        return self.capacity - self.free_space
 
     def __str__(self):
-        return "Queue:{}, size:{}".format(self.name, self.size)
+        return "Queue:{}, capacity:{}".format(self.name, self.capacity)
 
     def __getitem__(self, idx):
-        if idx < self.size - self.free_space:
+        if idx < self.capacity - self.free_space:
             return self._store[idx].data
 
     def __setitem__(self, idx, value):
-        if idx < self.size - self.free_space:
+        if idx < self.capacity - self.free_space:
             self._store[idx].data = value
 
     def enqueue(self, data):
@@ -76,32 +76,142 @@ class Queue(object):
             self._free -= 1
             self._head = self._store.head
             self._rear = self._store.rear
-        except Exception as e:
-            debug(str(e), 'Exceptpion')
+        except Exception:
+            raise
 
     def dequeue(self):
         if self.isEmpty:
             raise Exception("Queue is Empty!")
         try:
             # 0 means to remove the first node form linklist
+            element = self[0]
             self._store.remove_node(0)
             self._free += 1
             self._head = self._store.head
             self._rear = self._store.rear
-        except Exception as e:
-            debug(str(e), "Exception")
+            return element
+        except Exception:
+            raise
 
     def info(self):
         if not self.isEmpty:
             debug("Queue: {}:".format(self.name), 
                   "Info", 
-                  "None Empty",
-                  size=self.size,
+                  empty=self.isEmpty,
+                  capacity=self.capacity,
                  free=self.free_space)
             self._store.travel_list()
         else:
             debug("Queue: {}:".format(self.name), 
                   "Info", 
-                  'Empty',
-                  size=self.size,
+                  empty=self.isEmpty,
+                  capacity=self.capacity,
+                 free=self.free_space)
+
+class PQueue(Queue):
+    """
+    Priority Queue
+    The priority queue id different from a FIFO queue, it will pop the elementa
+    according to user defined priority.
+    The data in PQueue should conform with the following format:
+
+        data = {'priority': 0, 'data': 'anan'},
+
+    the priority number SHOULD be a none-negative interge.
+    """
+    store_cls = SingleLinkList
+    MAX_V = 0x7fffffff #Represents infinity 
+
+    def __init__(self, capacity=1024, *args, **kwargs):
+        super(PQueue, self).__init__(capacity, *args, **kwargs)
+        self._heap_size = 0
+           
+    def _max_heap_insert(self, data):
+        def _heap_increase_key(q, idx, data):
+            _parent = lambda x: x >> 1 if x % 2 else (x >> 1) - 1
+            if data['priority'] < q[idx].get('priority', 0):
+                raise Exception("New priority is smaller than current \
+                                priority!")
+           
+            q[idx]['priority'] = data['priority']
+            while idx > 0 and q[_parent(idx)]['priority'] < q[idx]['priority']:
+                q[idx], q[_parent(idx)] = q[_parent(idx)], q[idx]
+                idx = _parent(idx)
+
+        q = self
+        if 'priority' not in data.keys():
+            raise Exception("Data:{} missing priority info".format(data))
+        q._heap_size += 1
+        # Seems this step is not useful! Don't match p81 of
+        # <<Introduction to Algorithms>>
+        #q[q._heap_size - 1] = {'priority':q.MAX_V, 'data':q.MAX_V}
+        _heap_increase_key(q, q._heap_size - 1, data)
+
+    def _heap_extract_max(self):
+        _left = lambda x: (x << 1) + 1
+        _right = lambda x: (x << 1) + 2
+        def _max_heapify(q, idx):
+            l = _left(idx)
+            r = _right(idx)
+
+            if l <= q._heap_size and q[l] > q[idx]:
+                largest = l
+            else:
+                largest = idx
+            if r <= q._heap_size and q[r] > q[largest]:
+                largest = r
+            if largest != idx:
+                q[idx], q[largest] = q[largest], q[idx]
+                _max_heapify(q, largest)
+
+        if self._heap_size < 1:
+            raise Exception("Heap underflow!")
+
+        q, max = self, self[0]
+        q[0] = q[q._heap_size - 1]
+        q._heap_size -= 1
+        _max_heapify(q, 0)
+        return max
+
+    def enqueue(self, data, priority):
+        if self.isFull:
+            raise Exception("Queue is full!")
+        try:
+            # Encapluse the data into a dict
+            data = {'priority':priority, 'data':data}
+            self._store.insert_node_rear(data)
+            self._free -= 1
+            self._head = self._store.head
+            self._rear = self._store.rear
+            # Invoke _max_heap_insert to keep heap stable
+            self._max_heap_insert(data)
+        except Exception:
+            raise
+
+    def dequeue(self):
+        if self.isEmpty:
+            raise Exception("Empty Queue!")
+        try:
+            data = self._heap_extract_max()
+            self._store.remove_node(0)
+            self._free += 1
+            self._head = self._store.head
+            self._rear = self._store.rear
+            return data
+        except Exception:
+            raise
+
+    def info(self):
+        if not self.isEmpty:
+            debug("PQueue: {}:".format(self.name),
+                  "Info",
+                  empty=self.isEmpty,
+                  capacity=self.capacity,
+                 free=self.free_space)
+            self._store.travel_list()
+        else:
+            debug("PQueue: {}:".format(self.name),
+                  "Info",
+                  empty=self.isEmpty,
+                  capacity=self.capacity,
                  free=self.free_space)

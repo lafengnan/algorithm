@@ -4,15 +4,16 @@
 import sys
 import os
 import random
+import traceback
 from optparse import OptionParser
 os.path.sys.path.append(os.path.dirname
                         (os.path.dirname(os.path.abspath(__file__))))
 
 from algorithms import sort, polynomial
-from data_structure import linklist, stack, queue
+from data_structure import debug, linklist, stack, queue
 
 Commands = ("sort", "singlelinklist", "doublelinklist",
-            "search", "stack", 'poly', 'queue')
+            "search", "stack", 'poly', 'queue', 'pqueue')
 
 USAGE = """
 %prog <command> [options]
@@ -157,7 +158,7 @@ def main():
 
     elif cmd == 'queue':
         a = [40, 50, 40, 20, 0, 1, 2, -1 ,30]
-        q = queue.Queue(size=20, verbose=options.verbose)
+        q = queue.Queue(capacity=20, verbose=options.verbose)
         for x in a:
             q.enqueue(x)
         q.info()
@@ -168,10 +169,28 @@ def main():
         i = 0
         while i < len(a):
             try:
-                q.dequeue()
+                print "dequeue: ", q.dequeue()
             except Exception as e:
                 pass
             i += 1
+        q.info()
+        print q.head, q.rear
+
+    elif cmd == 'pqueue':
+        #a = [40, 50, 40, 20, 0, 1, 2, -1 ,30, 60]
+        a = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        pf = lambda end: random.randint(0, end)
+        q = queue.PQueue(20, verbose=options.verbose)
+        try:
+            for x in a:
+                q.enqueue(x, pf(3))
+        except Exception as e:
+            debug(e, "exceptions")
+            exc_type, exc_value, exc_tb = sys.exc_info()
+            debug(traceback.print_tb(exc_tb, file=sys.stdout), "Exception")
+        q.info()
+        print q.head, q.rear
+        print "dequeue: ", q.dequeue()
         q.info()
         print q.head, q.rear
         

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-def debug(msg, level, *args, **kwargs):
-    print("anan: [{ts} {lv}] --- {msg} {arg} {karg}"\
+def debug(msg, level, **kwargs):
+    print("anan: [{ts} {lv}] --- {msg} {karg}"\
           .format(ts=datetime.utcnow(), lv=level, \
-                  msg=msg, arg=args, karg=kwargs))
+                  msg=msg, karg=kwargs))

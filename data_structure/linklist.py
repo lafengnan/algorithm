@@ -29,7 +29,7 @@ class Node(object):
         self._idx = value
 
     def __str__(self):
-        return "\tindex:{}, data: {}".format(self._idx, self._data)
+        return "\tindex:{}, element: {}".format(self._idx, self._data)
 
 class SingleLinkList(object):
     """
@@ -144,6 +144,11 @@ class SingleLinkList(object):
                 self.head = self.rear = None
             else:
                 self.head = p.next
+                # Decrease the index value for rest nodes
+                tmp = self.head
+                while tmp:
+                    tmp.idx -= 1
+                    tmp = tmp.next
             p.next = q.next = None
         else:
             while idx:
