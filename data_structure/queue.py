@@ -73,9 +73,9 @@ class Queue(object):
             raise Exception("Queue is Full!")
         try:
             self._store.insert_node_rear(data)
-            self._free -= 1
             self._head = self._store.head
             self._rear = self._store.rear
+            self._free -= 1
         except Exception:
             raise
 
@@ -86,27 +86,22 @@ class Queue(object):
             # 0 means to remove the first node form linklist
             element = self[0]
             self._store.remove_node(0)
-            self._free += 1
             self._head = self._store.head
             self._rear = self._store.rear
+            self._free += 1
             return element
         except Exception:
             raise
 
     def info(self):
+        debug("Queue: {}:".format(self.name),
+              "Info",
+              empty=self.isEmpty,
+              capacity=self.capacity,
+              free=self.free_space)
+
         if not self.isEmpty:
-            debug("Queue: {}:".format(self.name), 
-                  "Info", 
-                  empty=self.isEmpty,
-                  capacity=self.capacity,
-                 free=self.free_space)
             self._store.travel_list()
-        else:
-            debug("Queue: {}:".format(self.name), 
-                  "Info", 
-                  empty=self.isEmpty,
-                  capacity=self.capacity,
-                 free=self.free_space)
 
 class PQueue(Queue):
     """
@@ -129,6 +124,7 @@ class PQueue(Queue):
     def _max_heap_insert(self, data):
         def _heap_increase_key(q, idx, data):
             _parent = lambda x: x >> 1 if x % 2 else (x >> 1) - 1
+
             if data['priority'] < q[idx].get('priority', 0):
                 raise Exception("New priority is smaller than current \
                                 priority!")
@@ -180,9 +176,9 @@ class PQueue(Queue):
             # Encapluse the data into a dict
             data = {'priority':priority, 'data':data}
             self._store.insert_node_rear(data)
-            self._free -= 1
             self._head = self._store.head
             self._rear = self._store.rear
+            self._free -= 1
             # Invoke _max_heap_insert to keep heap stable
             self._max_heap_insert(data)
         except Exception:
@@ -194,24 +190,19 @@ class PQueue(Queue):
         try:
             data = self._heap_extract_max()
             self._store.remove_node(0)
-            self._free += 1
             self._head = self._store.head
             self._rear = self._store.rear
+            self._free += 1
             return data
         except Exception:
             raise
 
     def info(self):
+        debug("PQueue: {}:".format(self.name),
+              "Info",
+              empty=self.isEmpty,
+              capacity=self.capacity,
+              free=self.free_space)
+
         if not self.isEmpty:
-            debug("PQueue: {}:".format(self.name),
-                  "Info",
-                  empty=self.isEmpty,
-                  capacity=self.capacity,
-                 free=self.free_space)
             self._store.travel_list()
-        else:
-            debug("PQueue: {}:".format(self.name),
-                  "Info",
-                  empty=self.isEmpty,
-                  capacity=self.capacity,
-                 free=self.free_space)

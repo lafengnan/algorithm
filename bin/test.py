@@ -54,7 +54,8 @@ def main():
         return 1
 
     if cmd == 'sort':
-        a = [40, 50, 20, 0, 1, 2, -1 ,30]
+        #a = [40, 50, 20, 0, 1, 2, -1 ,30]
+        a = [40, 50, 40, 20, 0, 1, 2, -1 ,30, 60]
         b = range(1000, -1, -1)
         x = sort.Sorter()
         if options.algorithm not in x.algorithms:
@@ -74,10 +75,10 @@ def main():
             # number equals to the swap times of insert sort
             #c = [2, 3, 8, 6, 1, 5]
             #x.run(method, c, low=0, high=len(b)-1, shard_size=3)
-            x.run(method, b, low=0, high=len(b)-1)
+            #x.run(method, b, low=0, high=len(b)-1)
         else:
-            x.run(options.sort, a)
-            x.run(options.sort, b)
+            x.run(method, a)
+            #x.run(method, b)
         x.info()
 
     elif cmd == 'singlelinklist':

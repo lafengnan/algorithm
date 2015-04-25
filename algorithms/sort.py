@@ -219,10 +219,10 @@ class Sorter(object):
     def heap_sort(self, data, *args, **kwargs):
 
         def _left(idx):
-            return idx << 1
+            return (idx << 1) + 1
 
         def _right(idx):
-            return (idx << 1) + 1
+            return (idx << 1) + 2
 
         def _max_heapify(data, idx, heap_size):
             """
