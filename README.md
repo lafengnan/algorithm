@@ -1,14 +1,22 @@
 # algorithm
 
-By now has completed the following items.
+By now have finished the following items.
 
-## Sort
+## algorithms
+### sort
 * bubble sort
 * insert sort
 * quick sort
 * merge sort
 * heap sort
 * select sort
+
+### Search
+* bi-search
+
+### polynomial
+* horner rule
+* naive rule
 
 ## data structure
 * single link list
