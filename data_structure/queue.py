@@ -120,56 +120,61 @@ class PQueue(Queue):
     def __init__(self, capacity=1024, *args, **kwargs):
         super(PQueue, self).__init__(capacity, *args, **kwargs)
         self._heap_size = 0
-           
-    def _max_heap_insert(self, data):
-        def _heap_increase_key(q, idx, data):
-            _parent = lambda x: x >> 1 if x % 2 else (x >> 1) - 1
+        self._left = lambda x: (x << 1) + 1
+        self._right = lambda x: (x << 1) + 2
 
-            if data['priority'] < q[idx].get('priority', 0):
-                raise Exception("New priority is smaller than current \
+    def _heap_increase_priority(self, idx, priority):
+        q = self
+        _parent = lambda x: x >> 1 if x % 2 else (x >> 1) - 1
+
+        if priority < q[idx].get('priority', 0):
+            raise Exception("New priority is smaller than current \
                                 priority!")
-           
-            q[idx]['priority'] = data['priority']
-            while idx > 0 and q[_parent(idx)]['priority'] < q[idx]['priority']:
-                q[idx], q[_parent(idx)] = q[_parent(idx)], q[idx]
-                idx = _parent(idx)
+        q[idx]['priority'] = priority
+        while idx > 0 and q[_parent(idx)]['priority'] < q[idx]['priority']:
+            q[idx], q[_parent(idx)] = q[_parent(idx)], q[idx]
+            idx = _parent(idx)
 
+    def _max_heapify(self, idx):
+        q = self
+        l = self._left(idx)
+        r = self._right(idx)
+
+        if l <= q._heap_size and q[l]['priority'] > q[idx]['priority']:
+            largest = l
+        else:
+            largest = idx
+        if r <= q._heap_size and q[r]['priority'] > q[largest]['priority']:
+            largest = r
+        if largest != idx:
+            q[idx], q[largest] = q[largest], q[idx]
+            self._max_heapify(largest)
+
+    def _heap_decrease_priority(self, idx, priority):
+        assert idx < len(self)
+        self[idx]['priority'] = priority
+        self._max_heapify(idx)
+
+    def _max_heap_insert(self, data):
         q = self
         if 'priority' not in data.keys():
             raise Exception("Data:{} missing priority info".format(data))
         q._heap_size += 1
         #q[q._heap_size - 1] = {'priority':q.MIN_PRI, 'data':"xxx"}
-        _heap_increase_key(q, q._heap_size - 1, data)
+        self._heap_increase_priority(q._heap_size - 1, data['priority'])
 
     def _heap_extract_max(self):
-        _left = lambda x: (x << 1) + 1
-        _right = lambda x: (x << 1) + 2
-        def _max_heapify(q, idx):
-            l = _left(idx)
-            r = _right(idx)
-
-            if l <= q._heap_size and q[l]['priority'] > q[idx]['priority']:
-                largest = l
-            else:
-                largest = idx
-            if r <= q._heap_size and q[r]['priority'] > q[largest]['priority']:
-                largest = r
-            if largest != idx:
-                q[idx], q[largest] = q[largest], q[idx]
-                _max_heapify(q, largest)
-
         if self._heap_size < 1:
             raise Exception("Heap underflow!")
-
         q = self
         q._heap_size -= 1
-        _max_heapify(q, 0)
+        self._max_heapify(0)
 
     def enqueue(self, data, priority):
         if self.isFull:
             raise Exception("Queue is full!")
         try:
-            # Encapluse the data into a dict
+            # Encapulate the data into a dict
             data = {'priority':priority, 'data':data}
             self._store.insert_node_rear(data)
             self._head = self._store.head
@@ -193,6 +198,18 @@ class PQueue(Queue):
             return data
         except Exception:
             raise
+
+    def change_priority(self, idx, step):
+        if self.isEmpty:
+            raise Exception("Empty Queue!")
+        if idx < len(self):
+            new_priority = self[idx]['priority'] + step
+            if step >= 0:
+                self._heap_increase_priority(idx, new_priority)
+            else:
+                self._heap_decrease_priority(idx, new_priority)
+        else:
+            raise IndexError("idx:{} is out of range!".format(idx))
 
     def info(self):
         debug("PQueue: {}:".format(self.name),

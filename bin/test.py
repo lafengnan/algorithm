@@ -192,6 +192,8 @@ def main():
         q.info()
         print "dequeue: ", q.dequeue()
         q.info()
+        q.change_priority(0, -3)
+        q.info()
         
 
 if __name__ == '__main__':
