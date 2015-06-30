@@ -192,7 +192,7 @@ def main():
         q.info()
         print "dequeue: ", q.dequeue()
         q.info()
-        q.change_priority(0, -3)
+        q.change_priority(-1, -3)
         q.info()
         
 

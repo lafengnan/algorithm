@@ -112,7 +112,7 @@ class PQueue(Queue):
 
         data = {'priority': 0, 'data': 'anan'},
 
-    the priority number SHOULD be a none-negative interge.
+    the value of priority SHOULD be a none-negative interge.
     """
     store_cls = SingleLinkList
     MIN_PRI = -0x7fffffff #Represents infinity 
@@ -202,7 +202,7 @@ class PQueue(Queue):
     def change_priority(self, idx, step):
         if self.isEmpty:
             raise Exception("Empty Queue!")
-        if idx < len(self):
+        if idx < len(self) and idx >= 0:
             new_priority = self[idx]['priority'] + step
             if step >= 0:
                 self._heap_increase_priority(idx, new_priority)
